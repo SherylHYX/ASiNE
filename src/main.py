@@ -27,8 +27,8 @@ class ASiNE(object):
 
         init_delta_D = 0.05
         init_delta_G = 0.05
-        self.node_emb_init_d = tf.Variable(tf.random_uniform([self.n_node, self.config.n_emb], minval=-init_delta_D, maxval=init_delta_D, dtype=tf.float32))
-        self.node_emb_init_g = tf.Variable(tf.random_uniform([self.n_node, self.config.n_emb], minval=-init_delta_G, maxval=init_delta_G, dtype=tf.float32))
+        self.node_emb_init_d = tf.Variable(tf.random.uniform([self.n_node, self.config.n_emb], minval=-init_delta_D, maxval=init_delta_D, dtype=tf.float32))
+        self.node_emb_init_g = tf.Variable(tf.random.uniform([self.n_node, self.config.n_emb], minval=-init_delta_G, maxval=init_delta_G, dtype=tf.float32))
 
         # construct or read BFS-trees
         self.pos_partition_trees = {}
@@ -42,12 +42,12 @@ class ASiNE(object):
         self.build_discriminator()
 
         self.latest_checkpoint = tf.train.latest_checkpoint(self.config.model_log)
-        self.saver = tf.train.Saver()
+        self.saver = tf.compat.v1.train.Saver()
 
-        self.config_tf = tf.ConfigProto()
+        self.config_tf = tf.compat.v1.ConfigProto()
         self.config_tf.gpu_options.allow_growth = True
-        self.init_op = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
-        self.sess = tf.Session(config=self.config_tf)
+        self.init_op = tf.group(tf.compat.v1.global_variables_initializer(), tf.compat.v1.local_variables_initializer())
+        self.sess = tf.compat.v1.Session(config=self.config_tf)
         self.sess.run(self.init_op)
         print("End initializing.")
 
@@ -79,7 +79,7 @@ class ASiNE(object):
 
     def build_generator(self):
         # building generator
-        with tf.variable_scope("generator") as generator_scope:
+        with tf.compat.v1.variable_scope("generator") as generator_scope:
             self.pos_generator = generator.Generator(n_node=self.n_node, 
                                       node_emb_init=self.node_emb_init_g, 
                                       positive=True, config=self.config)
@@ -91,7 +91,7 @@ class ASiNE(object):
 
     def build_discriminator(self):
         # building discriminator
-        with tf.variable_scope("discriminator") as discriminator_scope:
+        with tf.compat.v1.variable_scope("discriminator") as discriminator_scope:
             self.pos_discriminator = discriminator.Discriminator(
                                         n_node=self.n_node, 
                                         node_emb_init=self.node_emb_init_d, 
